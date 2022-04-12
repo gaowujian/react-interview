@@ -35,6 +35,7 @@ class MyPromise {
       });
     }
   }
+  // 必须是throw不能是reject，这样前一个promise如果没有给onReject的时候才能把错误交给下一个promise,否则会出现reject未定义的问题
   then(onFulfilled, onRejected) {
     onFulfilled = typeof onFulfilled === "function" ? onFulfilled : (value) => value;
     onRejected =
@@ -92,7 +93,48 @@ class MyPromise {
     });
     return promise2;
   }
+  catch(reject) {
+    return this.then(null, reject);
+  }
 }
+
+MyPromise.resolve = function (x) {
+  const promise2 = new MyPromise((resolve, reject) => {
+    if (typeof x === "function" || (typeof x === "object" && x !== null)) {
+      let called = false;
+      try {
+        const then = x.then;
+        // 如果then是一个函数
+
+        if (typeof then === "function") {
+          // console.log(".then是一个函数");
+          then.call(
+            x,
+            (y) => {
+              if (called) return;
+              called = true;
+              resolvePromise(promise2, y, resolve, reject);
+            },
+            (r) => {
+              if (called) return;
+              called = true;
+              reject(r);
+            }
+          );
+        } else {
+          resolve(x);
+        }
+      } catch (error) {
+        if (called) return;
+        called = true;
+        reject(error);
+      }
+    } else {
+      resolve(x);
+    }
+  });
+  return promise2;
+};
 
 function resolvePromise(promise, x, resolve, reject) {
   if (promise === x) {
@@ -143,5 +185,13 @@ MyPromise.deferred = function () {
   });
   return dfd;
 };
+
+MyPromise.resolve(
+  new Promise((resolve, reject) => {
+    resolve(20);
+  })
+).then((data) => {
+  console.log("data:", data);
+});
 
 module.exports = MyPromise;
