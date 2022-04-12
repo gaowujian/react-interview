@@ -1,0 +1,14 @@
+{
+  "name": "interview-coding",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:gaowujian/interview-coding.git",
+  "author": "Tony Gao <gwjlshebei@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "test:promise": "promises-aplus-tests 1.hand-promise.js"
+  },
+  "dependencies": {
+    "promises-aplus-tests": "^2.1.2"
+  }
+}

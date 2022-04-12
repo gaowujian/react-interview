@@ -1,5 +1,5 @@
 const PENDING = "PENDING";
-const FULFILLED = "FULFILLED";
+const RESOLVED = "RESOLVED";
 const REJECTED = "REJECTED";
 
 class MyPromise {
@@ -9,14 +9,20 @@ class MyPromise {
     this.reason = null;
     this.onFulfilledCallbacks = [];
     this.onRejectedCallbacks = [];
-    executor(this.resolve.bind(this), this.reject.bind(this));
+    const bindResolve = this.resolve.bind(this);
+    const bindReject = this.reject.bind(this);
+    try {
+      executor(bindResolve, bindReject);
+    } catch (error) {
+      bindReject(error);
+    }
   }
   resolve(value) {
     if (this.state === PENDING) {
-      this.state = FULFILLED;
+      this.state = RESOLVED;
       this.value = value;
       this.onFulfilledCallbacks.forEach((cb) => {
-        cb.call(null, this.value);
+        cb.call(null);
       });
     }
   }
@@ -25,58 +31,63 @@ class MyPromise {
       this.state = REJECTED;
       this.reason = reason;
       this.onRejectedCallbacks.forEach((cb) => {
-        cb.call(null, this.reason);
+        cb.call(null);
       });
     }
   }
-  then(onfulfilled, onRejected) {
+  then(onFulfilled, onRejected) {
+    onFulfilled = typeof onFulfilled === "function" ? onFulfilled : (value) => value;
+    onRejected =
+      typeof onRejected === "function"
+        ? onRejected
+        : (err) => {
+            throw err;
+          };
     const promise2 = new MyPromise((resolve, reject) => {
-      onfulfilled = typeof onfulfilled === "function" ? onfulfilled : null;
-      onRejected = typeof onRejected === "function" ? onRejected : null;
       // pending的时候传入的如果是同步代码，那么resolve之后
       if (this.state === PENDING) {
         this.onFulfilledCallbacks.push(() => {
           setTimeout(() => {
             try {
-              const x = onfulfilled(this.value);
-              resolvePromise(promise2, x);
+              const x = onFulfilled(this.value);
+              resolvePromise(promise2, x, resolve, reject);
             } catch (error) {
               reject(error);
             }
-          });
+          }, 0);
         });
         this.onRejectedCallbacks.push(() => {
           setTimeout(() => {
             try {
               const x = onRejected(this.reason);
-              resolvePromise(promise2, x);
+              resolvePromise(promise2, x, resolve, reject);
             } catch (error) {
               reject(error);
             }
-          });
+          }, 0);
         });
       }
 
-      if (this.state === FULFILLED) {
+      if (this.state === RESOLVED) {
         setTimeout(() => {
           try {
-            const x = onfulfilled(this.value);
-            resolvePromise(promise2, x);
+            const x = onFulfilled(this.value);
+            resolvePromise(promise2, x, resolve, reject);
           } catch (error) {
             reject(error);
           }
-        });
+        }, 0);
       }
 
       if (this.state === REJECTED) {
         setTimeout(() => {
           try {
             const x = onRejected(this.reason);
-            resolvePromise(promise2, x);
+            resolvePromise(promise2, x, resolve, reject);
           } catch (error) {
             reject(error);
           }
-        });
+        }, 0);
       }
     });
     return promise2;
@@ -85,40 +96,52 @@ class MyPromise {
 
 function resolvePromise(promise, x, resolve, reject) {
   if (promise === x) {
-    reject(new Error("promise和x指向同一个目标"));
+    throw new TypeError("cycling detected");
+  }
+  // 如果返回值 不是对象也不是函数，那么直接resolve，例如普通的数字字符串和布尔值
+  // 负责需要判断thenable的情况
+  // *兼容所有遵循规范的promise
+  if (typeof x === "function" || (typeof x === "object" && x !== null)) {
+    let called = false;
+    try {
+      const then = x.then;
+      // 如果then是一个函数
+
+      if (typeof then === "function") {
+        // console.log(".then是一个函数");
+        then.call(
+          x,
+          (y) => {
+            if (called) return;
+            called = true;
+            resolvePromise(promise, y, resolve, reject);
+          },
+          (r) => {
+            if (called) return;
+            called = true;
+            reject(r);
+          }
+        );
+      } else {
+        resolve(x);
+      }
+    } catch (error) {
+      if (called) return;
+      called = true;
+      reject(error);
+    }
+  } else {
+    resolve(x);
   }
 }
 
-const p = new MyPromise((resolve, reject) => {
-  setTimeout(() => {
-    resolve("xxx");
-  }, 1000);
-  console.log("同步代码1");
-});
-p.then(
-  (data) => {
-    console.log("data1:", data);
-  },
-  (err) => {
-    console.log("err:", err);
-  }
-);
-p.then(
-  (data) => {
-    console.log("data2:", data);
-  },
-  (err) => {
-    console.log("err:", err);
-  }
-);
-p.then(
-  (data) => {
-    console.log("data3:", data);
-  },
-  (err) => {
-    console.log("err:", err);
-  }
-);
+MyPromise.deferred = function () {
+  let dfd = {};
+  dfd.promise = new MyPromise((resolve, reject) => {
+    dfd.resolve = resolve;
+    dfd.reject = reject;
+  });
+  return dfd;
+};
 
-console.log("同步代码2");
-// console.log("p:", p);
+module.exports = MyPromise;
