@@ -96,45 +96,87 @@ class MyPromise {
   catch(reject) {
     return this.then(null, reject);
   }
-}
+  finally(cb) {
+    return this.then(cb, cb);
+  }
+  static resolve(x) {
+    const promise2 = new MyPromise((resolve, reject) => {
+      if (typeof x === "function" || (typeof x === "object" && x !== null)) {
+        let called = false;
+        try {
+          const then = x.then;
+          // 如果then是一个函数
 
-MyPromise.resolve = function (x) {
-  const promise2 = new MyPromise((resolve, reject) => {
-    if (typeof x === "function" || (typeof x === "object" && x !== null)) {
-      let called = false;
-      try {
-        const then = x.then;
-        // 如果then是一个函数
-
-        if (typeof then === "function") {
-          // console.log(".then是一个函数");
-          then.call(
-            x,
-            (y) => {
-              if (called) return;
-              called = true;
-              resolvePromise(promise2, y, resolve, reject);
-            },
-            (r) => {
-              if (called) return;
-              called = true;
-              reject(r);
-            }
-          );
-        } else {
-          resolve(x);
+          if (typeof then === "function") {
+            // console.log(".then是一个函数");
+            then.call(
+              x,
+              (y) => {
+                if (called) return;
+                called = true;
+                resolvePromise(promise2, y, resolve, reject);
+              },
+              (r) => {
+                if (called) return;
+                called = true;
+                reject(r);
+              }
+            );
+          } else {
+            resolve(x);
+          }
+        } catch (error) {
+          if (called) return;
+          called = true;
+          reject(error);
         }
-      } catch (error) {
-        if (called) return;
-        called = true;
-        reject(error);
+      } else {
+        resolve(x);
       }
-    } else {
-      resolve(x);
-    }
-  });
-  return promise2;
-};
+    });
+    return promise2;
+  }
+  static reject(reason) {
+    return new MyPromise((resolve, reject) => {
+      reject(reason);
+    });
+  }
+  static All(promiseList) {
+    return new Promise((resolve, reject) => {
+      let counter = 0;
+      const len = promiseList.length;
+      const result = [];
+      promiseList.forEach((promise, index) => {
+        promise.then(
+          (data) => {
+            counter++;
+            result[index] = data;
+            if (counter === len) {
+              resolve(result);
+            }
+          },
+          (err) => {
+            reject(err);
+          }
+        );
+      });
+    });
+  }
+  static race(promiseList) {
+    return new Promise((resolve, reject) => {
+      promiseList.forEach((promise) => {
+        promise.then(
+          (data) => {
+            resolve(data);
+          },
+          (err) => {
+            reject(err);
+          }
+        );
+      });
+    });
+  }
+}
 
 function resolvePromise(promise, x, resolve, reject) {
   if (promise === x) {
@@ -185,13 +227,5 @@ MyPromise.deferred = function () {
   });
   return dfd;
 };
-
-MyPromise.resolve(
-  new Promise((resolve, reject) => {
-    resolve(20);
-  })
-).then((data) => {
-  console.log("data:", data);
-});
 
 module.exports = MyPromise;
