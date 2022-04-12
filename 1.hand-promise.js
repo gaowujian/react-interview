@@ -15,8 +15,8 @@ class MyPromise {
     if (this.state === PENDING) {
       this.state = FULFILLED;
       this.value = value;
-      this.onFulfilledCallbacks.forEach((item) => {
-        item.call(null, this.value);
+      this.onFulfilledCallbacks.forEach((cb) => {
+        cb.call(null, this.value);
       });
     }
   }
@@ -24,8 +24,8 @@ class MyPromise {
     if (this.state === PENDING) {
       this.state = REJECTED;
       this.reason = reason;
-      this.onRejectedCallbacks.forEach((item) => {
-        item.call(null, this.reason);
+      this.onRejectedCallbacks.forEach((cb) => {
+        cb.call(null, this.reason);
       });
     }
   }
@@ -36,6 +36,29 @@ class MyPromise {
       // pending的时候传入的如果是同步代码，那么resolve之后
       if (this.state === PENDING) {
         this.onFulfilledCallbacks.push(() => {
+          setTimeout(() => {
+            try {
+              const x = onfulfilled(this.value);
+              resolvePromise(promise2, x);
+            } catch (error) {
+              reject(error);
+            }
+          });
+        });
+        this.onRejectedCallbacks.push(() => {
+          setTimeout(() => {
+            try {
+              const x = onRejected(this.reason);
+              resolvePromise(promise2, x);
+            } catch (error) {
+              reject(error);
+            }
+          });
+        });
+      }
+
+      if (this.state === FULFILLED) {
+        setTimeout(() => {
           try {
             const x = onfulfilled(this.value);
             resolvePromise(promise2, x);
@@ -43,7 +66,10 @@ class MyPromise {
             reject(error);
           }
         });
-        this.onRejectedCallbacks.push(() => {
+      }
+
+      if (this.state === REJECTED) {
+        setTimeout(() => {
           try {
             const x = onRejected(this.reason);
             resolvePromise(promise2, x);
@@ -51,24 +77,6 @@ class MyPromise {
             reject(error);
           }
         });
-      }
-
-      if (this.state === FULFILLED) {
-        try {
-          const x = onfulfilled(this.value);
-          resolvePromise(promise2, x);
-        } catch (error) {
-          reject(error);
-        }
-      }
-
-      if (this.state === REJECTED) {
-        try {
-          const x = onRejected(this.reason);
-          resolvePromise(promise2, x);
-        } catch (error) {
-          reject(error);
-        }
       }
     });
     return promise2;
@@ -82,10 +90,10 @@ function resolvePromise(promise, x, resolve, reject) {
 }
 
 const p = new MyPromise((resolve, reject) => {
-  //   setTimeout(() => {
-  resolve("xxx");
-  console.log("111");
-  //   }, 1000);
+  setTimeout(() => {
+    resolve("xxx");
+  }, 1000);
+  console.log("同步代码1");
 });
 p.then(
   (data) => {
@@ -112,4 +120,5 @@ p.then(
   }
 );
 
+console.log("同步代码2");
 // console.log("p:", p);
