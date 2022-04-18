@@ -1,0 +1,19 @@
+- dom 树中有 7 种节点，就好像是 javascript 中有 7 中数据类型一样
+  - js: null, undefined, string, boolean,number,object,bigint
+  - dom: elementNode, attributeNode, textNode, documentFragment,comments, document,documentType
+- 除了 document 和 documentType 节点，其他的节点都有三种关系
+  - 父节点关系: node.parentNode
+  - 子节点关系: node.firstChild node.lastChild node.childNodes
+  - 兄弟节点关系: node.previousSibling, node.nextSibling
+- 对于所有的 node 相关 api，包括查询，添加，删除都是针对以上的 7 中类型对象进行操作, parentNode
+- 对于所有的 element 相关的 api，只会返回 elementNode 类型的数据，例如 parentElement
+- 推荐常用好记的 api
+  - 新增节点:
+    - 1. 找到父节点，找到需要插入元素 append, appendChild
+    - 2. 指定位置插入的话，找到位置元素 然后 before, after 进行插入
+  - 删除节点:
+    - 1. 找到父节点，找到子元素 removeChild(child)
+    - 2. 找到节点元素，然后 remove
+  - 替换节点:
+    - 1. 找到父节点，找到子元素 replaceChild(newNode,oldNode)
+    - 2. 找到需要替换的节点 replace(newNode)

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <section class="section">
+      <h3>常见的dom操作</h3>
+      <div id="root">
+        <!-- <div id="ref">
+          <ul>
+            <li>11</li>
+            <li>2</li>
+            <li>3</li>
+          </ul>
+        </div> -->
+      </div>
+      <ul>
+        <li><button id="append" onclick="appendFn()">父节点末尾添加节点</button></li>
+        <li><button id="insertBefore" onclick="insertBeforeFn()">选中节点前添加节点</button></li>
+        <li><button id="delete" onclick="deleteFn()">删除节点</button></li>
+        <li><button id="replace" onclick="replaceFn()">替换节点</button></li>
+      </ul>
+    </section>
+    <script>
+      const refNode = document.querySelector("#ref");
+      const root = document.getElementById("root");
+
+      function appendFn() {
+        const divNode = document.createElement("div");
+        divNode.textContent = "新append节点";
+        root.appendChild(divNode);
+      }
+      function insertBeforeFn() {
+        console.log("root:", root);
+        // const textNode = document.createAttribute("insertBefore节点");
+        // console.log("textNode:", textNode);
+        const divNode = document.createElement("div");
+        divNode.textContent = "新insertBeforeFn节点";
+        console.log("root.childNodes[2]:", root.childNodes[4]);
+        root.insertBefore(divNode, root.childNodes[0]);
+      }
+      function replaceFn() {
+        const divNode = document.createElement("div");
+        divNode.textContent = "replace节点";
+        root.replaceChild(divNode, root.childNodes[0]);
+      }
+
+      function deleteFn() {
+        root.removeChild(root.childNodes[0]);
+      }
+    </script>
+    <style>
+      .section {
+        border: 1px solid black;
+      }
+    </style>
+  </body>
+</html>
