@@ -87,7 +87,7 @@ function Child(name) {
 
 // =====
 
-Child.prototype = Object.create(Parent.prototype);
+// Child.prototype = Object.create(Parent.prototype);
 // Object.setPrototypeOf(Child.prototype, Parent.prototype);
 // Child.prototype.constructor = Child;
 
