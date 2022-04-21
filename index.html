@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <h1></h1>
+    <script>
+      var myObj = {
+        name: "极客时间",
+        showThis: function () {
+          this.name = "即刻帮";
+          console.log("this.name:", this.name);
+          function inner() {
+            console.log(this);
+          }
+          inner();
+        },
+      };
+      const fn = myObj.showThis;
+      fn();
+    </script>
+  </body>
+</html>
