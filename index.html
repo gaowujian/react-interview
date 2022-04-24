@@ -24,7 +24,37 @@
         <li><button id="delete" onclick="deleteFn()">删除节点</button></li>
         <li><button id="replace" onclick="replaceFn()">替换节点</button></li>
       </ul>
+      <div class="mouseArea"></div>
     </section>
+    <script>
+      function debounce(fn, ms) {
+        let timer;
+        return function () {
+          if (timer) {
+            clearTimeout(timer);
+          }
+          timer = setTimeout(() => {
+            fn();
+          }, ms);
+        };
+      }
+
+      function throttle(fn, ms) {
+        let timer;
+        return function () {
+          if (timer) return;
+          timer = setTimeout(() => {
+            fn();
+            timer = null;
+          }, ms);
+        };
+      }
+      const area = document.querySelector(".mouseArea");
+      const handler = function () {
+        console.log("aaaaaa");
+      };
+      area.addEventListener("mousemove", throttle(handler, 1000));
+    </script>
     <script>
       const refNode = document.querySelector("#ref");
       const root = document.getElementById("root");
@@ -56,6 +86,11 @@
     <style>
       .section {
         border: 1px solid black;
+      }
+      .mouseArea {
+        width: 500px;
+        height: 500px;
+        background-color: pink;
       }
     </style>
   </body>
