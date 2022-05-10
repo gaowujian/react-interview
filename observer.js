@@ -33,7 +33,7 @@ class Observer {
     this.id = id;
   }
   update(data) {
-    console.log("observer " + this.id + ": " + data + ";");
+    console.log(`我是${this.id}, 我观察的人有最新数据是${data}`);
   }
 }
 
@@ -47,9 +47,11 @@ function test() {
 
   //通过add方法实现“观察”的动作
   sub.add(ob1, ob2, ob3);
+  sub.data = "new111";
   sub.notify();
 
   sub.remove(ob2);
+  sub.data = "news222";
   sub.notify();
 }
 
