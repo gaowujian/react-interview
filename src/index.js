@@ -1,17 +1,48 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import ReactDOM from "react-dom";
+// import * as ReactDOM from "react-dom/client";
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+function useMount(fn) {
+  const fnRef = useRef(fn);
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+  fnRef.current = useMemo(() => fn, [fn]);
+
+  const memoizedFn = useRef();
+  if (!memoizedFn.current) {
+    memoizedFn.current = function (caller, ...args) {
+      return fnRef.current.apply(caller, args);
+    };
+  }
+  useEffect(() => {
+    memoizedFn.current();
+  }, []);
+
+  // return memoizedFn.current;
+
+  // const memoFn = useMemo(() => fn, []);
+  // useEffect(() => {
+  //   memoFn();
+  // }, []);
+}
+function App() {
+  const [data, setData] = useState("init");
+  useMount(() => {
+    new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve("真实数据");
+      }, 2000);
+    }).then((data) => {
+      setData(data);
+    });
+  });
+  return (
+    <div>
+      <h1>title</h1>
+      <div>数据:{data}</div>
+    </div>
+  );
+}
+
+ReactDOM.render(<App />, document.getElementById("root"));
+// const root = ReactDOM.createRoot(document.getElementById("root"));
+// root.render(<App />);
