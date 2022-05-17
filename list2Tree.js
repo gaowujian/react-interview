@@ -113,6 +113,6 @@ function list2Tree(arr) {
   return roots;
 }
 const result = list2Tree(jsonData);
-console.log("result:", result);
+console.dir(result, { depth: null });
 
 // !实现一个无限层级 数组转树的方法
