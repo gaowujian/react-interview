@@ -31,16 +31,16 @@ class TopicChannel {
     }
   }
 
-  //发布操作
+  //基于发布者的ID进行发布操作
   publishBaseId(publisherId: string) {
     //判断发布者map中是否有该发布者，若有，则遍历发布-订阅map中的订阅者，分别执行其提供的更
     // 新接口实现更新操作;
     if (this.publisherMap.has(publisherId)) {
       this.subscriberMap.get(publisherId).forEach((item) => {
-        item.update(this.publisherMap.get(publisherId)._data);
+        item.update(publisherId, this.publisherMap.get(publisherId)._data);
       });
     } else {
-      console.log("There is not the publisher!");
+      console.log(`There is no publisher with Id ${publisherId}!`);
     }
   }
 }
@@ -91,28 +91,36 @@ class Subscriber {
   }
 
   //提供的更新接口，调度中心可以调用此接口来实现通知的功能
-  update(topicData: string) {
-    console.log(`我是${this._id},我订阅的人刚发布的数据是${topicData}`);
+  update(id: string, topicData: string) {
+    console.log(`我是${this._id},我订阅的人${id}刚发布的数据是${topicData}`);
   }
 }
 
 //分别实例化一个调度中心、两个发布者、两个订阅者
 let topicChannel = new TopicChannel();
 // 传入自己的 publisherId，并传入一个默认数据，传入绑定的事件中心
-let applePublisher1 = new Publisher("apple publisher1", "foo apple1", topicChannel);
-let applePublisher2 = new Publisher("apple publisher2", "foo apple2", topicChannel);
+let applePublisher1 = new Publisher(
+  "apple publisher1",
+  "数据AAA",
+  topicChannel
+);
+let applePublisher2 = new Publisher(
+  "apple publisher2",
+  "数据BBB",
+  topicChannel
+);
 // 传入自己的subscriberid，和绑定的时间中心
 let fruitSubscriber1 = new Subscriber("fruit1", topicChannel);
 let fruitSubscriber2 = new Subscriber("fruit2", topicChannel);
 
 //向调度中心添加发布者
-topicChannel.addPublisher(applePublisher1);
-topicChannel.addPublisher(applePublisher2);
+// topicChannel.addPublisher(applePublisher1);
+// topicChannel.addPublisher(applePublisher2);
 
-//订阅者实现订阅操作
+// !订阅者实现订阅操作,自定义监听的频道
 fruitSubscriber1.subscribe("apple publisher1");
 fruitSubscriber1.subscribe("apple publisher2");
-fruitSubscriber1.subscribe("apple publisher1");
+// fruitSubscriber1.subscribe("apple publisher1");
 
 // 发布者执行发布动作，实际上交给事件中心去把自己的data传递给观察者
 applePublisher1.publish();

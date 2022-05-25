@@ -1,4 +1,5 @@
 Function.prototype.MyCall = function (context, ...args) {
+  console.log("this:", this);
   context.fn = this;
   return context.fn(...args);
 };
