@@ -23,6 +23,7 @@ function curry(fn, limit) {
 try {
   const curryAdd = curry(add, 4);
   const result = curryAdd(1)(2)(3)(4);
+
   console.log("result:", result);
 } catch (error) {
   console.log("error:", error);

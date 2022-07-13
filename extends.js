@@ -54,8 +54,8 @@ Parent.prototype.getName = function () {
 // console.log("c2.name:", c2.address);
 // c1.address.push("shanghai");
 // console.log("c2.name:", c2.address);
-// * 比较完美的解决方案，保留了构造函数方式和原型链方式的优点
-// ! 缺陷: 调用了两次Parent方法, 所以实例上有address属性，并且Child.prototype上也有address，但是第二个没有必要
+// // * 比较完美的解决方案，保留了构造函数方式和原型链方式的优点
+// // ! 缺陷: 调用了两次Parent方法, 所以实例上有address属性，并且Child.prototype上也有address，但是第二个没有必要
 // console.log("child.address:", c2.address);
 // console.log("Child.prototype.address:", Child.prototype.address);
 
@@ -91,17 +91,17 @@ function Child(name) {
 // Object.setPrototypeOf(Child.prototype, Parent.prototype);
 // Child.prototype.constructor = Child;
 
-const c1 = new Child("hua");
-console.log("c1.constructor:", c1.constructor);
-console.log("c1.name:", c1.name);
-console.log("c1.getName:", c1.getName());
+// const c1 = new Child("hua");
+// console.log("c1.constructor:", c1.constructor);
+// console.log("c1.name:", c1.name);
+// console.log("c1.getName:", c1.getName());
 
-const c2 = new Child();
-console.log("c2.address:", c2.address);
-c1.address.push("shanghai");
-console.log("c2.address:", c2.address);
-console.log("child.address:", c2.address);
-// 没有构造函数指向错误
-console.log("Child.prototype.constructor:", Child.prototype.constructor);
-// 没有额外属性
-console.log("Child.prototype.constructor:", Child.prototype.address);
+// const c2 = new Child();
+// console.log("c2.address:", c2.address);
+// c1.address.push("shanghai");
+// console.log("c2.address:", c2.address);
+// console.log("child.address:", c2.address);
+// // 没有构造函数指向错误
+// console.log("Child.prototype.constructor:", Child.prototype.constructor);
+// // 没有额外属性
+// console.log("Child.prototype.constructor:", Child.prototype.address);

@@ -11,13 +11,15 @@ class MyPromise {
     this.onRejectedCallbacks = [];
     const bindResolve = this.resolve.bind(this);
     const bindReject = this.reject.bind(this);
+
     try {
-      executor(bindResolve, bindReject);
+      executor(this.resolve, this.reject);
     } catch (error) {
       bindReject(error);
     }
   }
   resolve(value) {
+    console.log("this:", this);
     if (this.state === PENDING) {
       this.state = RESOLVED;
       this.value = value;
@@ -37,7 +39,8 @@ class MyPromise {
   }
   // 必须是throw不能是reject，这样前一个promise如果没有给onReject的时候才能把错误交给下一个promise,否则会出现reject未定义的问题
   then(onFulfilled, onRejected) {
-    onFulfilled = typeof onFulfilled === "function" ? onFulfilled : (value) => value;
+    onFulfilled =
+      typeof onFulfilled === "function" ? onFulfilled : (value) => value;
     onRejected =
       typeof onRejected === "function"
         ? onRejected
@@ -219,6 +222,9 @@ function resolvePromise(promise, x, resolve, reject) {
   }
 }
 
+const p = new MyPromise(function (resolve, reject) {
+  resolve();
+});
 MyPromise.deferred = function () {
   let dfd = {};
   dfd.promise = new MyPromise((resolve, reject) => {

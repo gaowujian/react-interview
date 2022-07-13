@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div>我们需要实现一个10秒的精准倒计时</div>
+    <div>参考链接:https://juejin.cn/post/6844903638431694862#comment</div>
+    <div>
+      我们利用了一个web-worker去进行倒计时，然后每过一秒发送消息给主进程，即使主进程处理其他耗时操作，导致ui更新缓慢也无所谓。因为worker中计时一直是不受影响的，是准确的。
+    </div>
+    <div>
+      <button class="add">++</button>
+    </div>
+    <div>
+      <button class="longTask">添加长任务</button>
+      <div class="longText"></div>
+    </div>
+
+    <div>
+      <button class="start">开始计时</button>
+      <div id="timer"></div>
+    </div>
+
+    <script>
+      const longTaskBtn = document.querySelector(".longTask");
+
+      longTaskBtn.onclick = function () {
+        // 设置一个卡顿的任务
+
+        let i = 0;
+        let start = Date.now();
+        while (i < 100000) {
+          i++;
+          console.log(i);
+        }
+        let end = Date.now();
+        console.log("耗时", (end - start) / 1000);
+      };
+    </script>
+    <script>
+      const addBtn = document.querySelector(".add");
+      addBtn.onclick = function () {
+        console.log("你点击了我 现在可以响应事件");
+      };
+    </script>
+    <script>
+      const startBtn = document.querySelector(".start");
+      startBtn.onclick = function () {
+        const timer = document.querySelector("#timer");
+        // 利用一个web worker
+        var worker = new Worker("./counter.js");
+        // 主进程给worker发送信息
+        worker.postMessage(5);
+        // work进程发送消息时候的回调
+        worker.onmessage = function (e) {
+          console.log(e.data);
+          timer.innerHTML = "web worker倒计时" + e.data;
+        };
+      };
+    </script>
+  </body>
+</html>
