@@ -14,9 +14,22 @@
       }
     </style>
     <div id="root">
+      root元素
       <div id="parent">
-        <div id="child">点击我触发事件</div>
+        父元素
+        <div id="child">子元素</div>
       </div>
+    </div>
+    <div>
+      <ul>
+        <li>
+          在react16的时候，react会把所有收集到的合成事件函数，在冒泡到document的时候进行调用
+        </li>
+        <li>也就是 dispatchEvent方法的执行时机</li>
+        <li>
+          如果有用户自定义个document上的函数，会在react调用完后再调用用户自定义方法
+        </li>
+      </ul>
     </div>
     <script>
       const parent = document.getElementById("parent");
@@ -68,7 +81,7 @@
         console.log("父元素原生冒泡事件触发");
       });
       child.addEventListener("click", () => {
-        console.log("父元素原生子元素触发");
+        console.log("子元素原生冒泡事件触发");
       });
 
       parent.onClickCapture = () => {
