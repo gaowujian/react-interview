@@ -7,91 +7,34 @@
     <title>Document</title>
   </head>
   <body>
-    <section class="section">
-      <h3>常见的dom操作</h3>
-      <div id="root">
-        <!-- <div id="ref">
-          <ul>
-            <li>11</li>
-            <li>2</li>
-            <li>3</li>
-          </ul>
-        </div> -->
-      </div>
-      <ul>
-        <li><button id="append" onclick="appendFn()">父节点末尾添加节点</button></li>
-        <li><button id="insertBefore" onclick="insertBeforeFn()">选中节点前添加节点</button></li>
-        <li><button id="delete" onclick="deleteFn()">删除节点</button></li>
-        <li><button id="replace" onclick="replaceFn()">替换节点</button></li>
-      </ul>
-      <div class="mouseArea"></div>
-    </section>
     <script>
-      function debounce(fn, ms) {
-        let timer;
-        return function () {
-          if (timer) {
-            clearTimeout(timer);
-          }
-          timer = setTimeout(() => {
-            fn();
-          }, ms);
-        };
+      function getWeather(city) {
+        console.log(`开始获取${city}的天气`);
+        return fetch(
+          `http://api2.jirengu.com/getWeather.php?city=${city}`
+        ).then((res) => res.json());
       }
 
-      function throttle(fn, ms) {
-        let timer;
-        return function () {
-          if (timer) return;
-          timer = setTimeout(() => {
-            fn();
-            timer = null;
-          }, ms);
-        };
+      let citys = [
+        "北京",
+        "上海",
+        "杭州",
+        "成都",
+        "武汉",
+        "天津",
+        "深圳",
+        "广州",
+        "合肥",
+        "郑州",
+      ];
+      // asyncPool(getWeather, citys, 2).then((results) => console.log(results));
+
+      function asyncPool(query, list, limit) {
+        Promise.all(list.map((item) => query(item))).then((data) => {
+          console.log("data:", data);
+        });
       }
-      const area = document.querySelector(".mouseArea");
-      const handler = function () {
-        console.log("aaaaaa");
-      };
-      area.addEventListener("mousemove", throttle(handler, 1000));
+      asyncPool(getWeather, citys, 2);
     </script>
-    <script>
-      const refNode = document.querySelector("#ref");
-      const root = document.getElementById("root");
-
-      function appendFn() {
-        const divNode = document.createElement("div");
-        divNode.textContent = "新append节点";
-        root.appendChild(divNode);
-      }
-      function insertBeforeFn() {
-        console.log("root:", root);
-        // const textNode = document.createAttribute("insertBefore节点");
-        // console.log("textNode:", textNode);
-        const divNode = document.createElement("div");
-        divNode.textContent = "新insertBeforeFn节点";
-        console.log("root.childNodes[2]:", root.childNodes[4]);
-        root.insertBefore(divNode, root.childNodes[0]);
-      }
-      function replaceFn() {
-        const divNode = document.createElement("div");
-        divNode.textContent = "replace节点";
-        root.replaceChild(divNode, root.childNodes[0]);
-      }
-
-      function deleteFn() {
-        root.removeChild(root.childNodes[0]);
-      }
-    </script>
-    <style>
-      .section {
-        border: 1px solid black;
-      }
-      .mouseArea {
-        width: 500px;
-        height: 500px;
-        background-color: pink;
-      }
-    </style>
   </body>
 </html>
